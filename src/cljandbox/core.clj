@@ -9,13 +9,13 @@
 (defalias fn-or fn/or)
 (defalias fn-not fn/not)
 
-(defn <- "(filter identity coll)" [coll]
+(defn <-
+  "Returns a lazy sequence of the items in coll that are boolean true."
+  [coll]
   (filter identity coll))
 
 (defmacro ->_
-  "(macroexpand-all '(->_ 5 (+ 1 _) (- 5 _ 5) (/ _ 5)))
-
-  ;; (/ (- 5 (+ 1 5) 5) 5)"
+  "Threads the forms, replacing underscores with the result of the last expression."
   ([x] x)
   ([x form] (if (seq? form)
               (with-meta (postwalk-replace {'_ x} form) (meta form))
