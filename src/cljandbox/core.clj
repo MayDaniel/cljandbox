@@ -3,7 +3,6 @@
   (:use [clojure.walk :only [postwalk-replace]]
         [clojure.contrib.def :only [defalias]]))
 
-
 ;; http://github.com/zahardzhan/fn
 
 (defalias fn-and fn/and)
