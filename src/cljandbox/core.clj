@@ -18,6 +18,6 @@
   ;; (/ (- 5 (+ 1 5) 5) 5)"
   ([x] x)
   ([x form] (if (seq? form)
-              (with-meta `(~@(postwalk-replace {'_ x} form)) (meta form))
+              (with-meta (postwalk-replace {'_ x} form) (meta form))
               (list form x)))
   ([x form & more] `(->_ (->_ ~x ~form) ~@more)))
