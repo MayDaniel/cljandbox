@@ -16,7 +16,7 @@
   (filter identity coll))
 
 (defmacro defunk
-  "Similar to clojure.contrib.def/defnk, but accepts :arglists meta data."
+  "Similar to clojure.contrib.def/defnk, but accepts :arglists meta-data."
   [fn-name & fn-tail]
   (let [arglists (some :arglists fn-tail)]
     `(do (defnk ~fn-name ~@fn-tail)
