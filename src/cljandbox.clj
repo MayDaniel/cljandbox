@@ -7,7 +7,7 @@
   "(compose-and f g ...)
    => (fn [& xs] (and (apply f xs) (apply g xs) ... true))
 
-  ((compose-and coll? empty?) []) yielding true."
+  ((compose-and coll? empty?) []) will yield true."
   [& predicates]
   (fn [& xs] (every? #(apply % xs) predicates)))
 
@@ -15,7 +15,7 @@
   "(compose-or f g ...)
    => (fn [& xs] (boolean (or (apply f xs) (apply g xs) ...)))
 
-  ((compose-or number? string?) 2.5) yielding true."
+  ((compose-or number? string?) 2.5) will yield true."
   [& predicates]
   (fn [& xs] (boolean (some #(apply % xs) predicates))))
 
@@ -23,7 +23,7 @@
   "(compose-not f g ...)
    => (fn [& xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))
 
-  ((compose-not integer? string?) {}) yielding true."
+  ((compose-not integer? string?) {}) will yield true."
   [& predicates]
   (fn [& xs] (apply (apply compose-and (map complement predicates)) xs)))
 
