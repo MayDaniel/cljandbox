@@ -1,14 +1,25 @@
 (ns ^{:author "Daniel May (MayDaniel)", :doc "A collection of Clojure utilities."}
   cljandbox
-  (:require fn)
   (:use [clojure.walk :only [postwalk-replace]]
         [clojure.contrib.def :only [defalias defnk]]))
 
-;; http://github.com/zahardzhan/fn
+(defn compose-and
+  "(compose-and f g ...)
+   => (fn [xs] (and (apply f xs) (apply g xs) ... true))"
+  [& predicates]
+  (fn [& xs] (every? #(apply % xs) predicates)))
 
-(defalias fn-and fn/and)
-(defalias fn-or fn/or)
-(defalias fn-not fn/not)
+(defn compose-or
+  "(compose-or f g ...)
+   => (fn [xs] (boolean (or (apply f xs) (apply g xs) ...)))"
+  [& predicates]
+  (fn [& xs] (boolean (some #(apply % xs) predicates))))
+
+(defn compose-not
+  "(compose-not f g ...)
+   => (fn [xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))"
+  [& predicates]
+  (fn [& xs] (apply (apply compose-and (map complement predicates)) xs)))
 
 (defn <-
   "Returns a lazy sequence of the items in coll that are boolean true."
