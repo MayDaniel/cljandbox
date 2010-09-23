@@ -1,12 +1,8 @@
-(ns cljandbox
-  (:require fn
-            [somnium.congomongo.util :as congo])
+(ns ^{:author "Daniel May (MayDaniel)", :doc "A collection of Clojure utilities."}
+  cljandbox
+  (:require fn)
   (:use [clojure.walk :only [postwalk-replace]]
-        [clojure.contrib.def :only [defalias]]))
-
-;; http://github.com/somnium/congomongo
-
-(defalias defunk congo/defunk)
+        [clojure.contrib.def :only [defalias defnk]]))
 
 ;; http://github.com/zahardzhan/fn
 
@@ -18,6 +14,14 @@
   "Returns a lazy sequence of the items in coll that are boolean true."
   [coll]
   (filter identity coll))
+
+(defmacro defunk
+  "Similar to clojure.contrib.def/defnk, but accepts :arglists meta data."
+  [fn-name & fn-tail]
+  (let [arglists (some :arglists fn-tail)]
+    `(do (defnk ~fn-name ~@fn-tail)
+         (when ~arglists (alter-meta! (var ~fn-name) assoc :arglists ~arglists))
+         (var ~fn-name))))
 
 (defmacro ->_
   "Threads the forms, replacing underscores with the result of the last expression."
