@@ -5,19 +5,28 @@
 
 (defn compose-and
   "(compose-and f g ...)
-   => (fn [xs] (and (apply f xs) (apply g xs) ... true))"
+   => (fn [& xs] (and (apply f xs) (apply g xs) ... true))
+
+  ((compose-and coll? empty?) [])
+  = true"
   [& predicates]
   (fn [& xs] (every? #(apply % xs) predicates)))
 
 (defn compose-or
   "(compose-or f g ...)
-   => (fn [xs] (boolean (or (apply f xs) (apply g xs) ...)))"
+   => (fn [& xs] (boolean (or (apply f xs) (apply g xs) ...)))
+
+  ((compose-or number? string?) 2.5)
+  = true"
   [& predicates]
   (fn [& xs] (boolean (some #(apply % xs) predicates))))
 
 (defn compose-not
   "(compose-not f g ...)
-   => (fn [xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))"
+   => (fn [& xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))
+
+  ((compose-not integer? string?) {})
+  = true"
   [& predicates]
   (fn [& xs] (apply (apply compose-and (map complement predicates)) xs)))
 
