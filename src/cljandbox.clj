@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel May (MayDaniel)", :doc "A collection of Clojure utilities."}
   cljandbox
   (:use [clojure.walk :only [postwalk-replace]]
-        [clojure.contrib.def :only [defalias defnk]]))
+        [clojure.contrib.def :only [defnk]]))
 
 (defn compose-and
   "(compose-and f g ...)
