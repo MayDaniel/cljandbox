@@ -3,27 +3,27 @@
   (:use [clojure.walk :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
 
-(defn compose-and?
-  "(compose-and f g ...)
+(defn of-all?
+  "(of-all? f g ...)
    => (fn [& xs] (and (apply f xs) (apply g xs) ... true))
 
-  ((compose-and coll? empty?) []) will yield true."
+  ((of-all? coll? empty?) []) will yield true."
   [& predicates]
   (fn [& xs] (every? #(apply % xs) predicates)))
 
-(defn compose-or?
-  "(compose-or f g ...)
+(defn of-any?
+  "(of-any? f g ...)
    => (fn [& xs] (boolean (or (apply f xs) (apply g xs) ...)))
 
-  ((compose-or number? string?) 2.5) will yield true."
+  ((of-any? number? string?) 2.5) will yield true."
   [& predicates]
   (fn [& xs] (boolean (some #(apply % xs) predicates))))
 
-(defn compose-not?
-  "(compose-not f g ...)
+(defn of-none?
+  "(of-none? f g ...)
    => (fn [& xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))
 
-  ((compose-not integer? string?) {}) will yield true."
+  ((of-none? integer? string?) {}) will yield true."
   [& predicates]
   (fn [& xs] (not-any? #(apply % xs) predicates)))
 
