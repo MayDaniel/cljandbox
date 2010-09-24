@@ -3,7 +3,7 @@
   (:use [clojure.walk :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
 
-(defn compose-and
+(defn compose-and?
   "(compose-and f g ...)
    => (fn [& xs] (and (apply f xs) (apply g xs) ... true))
 
@@ -11,7 +11,7 @@
   [& predicates]
   (fn [& xs] (every? #(apply % xs) predicates)))
 
-(defn compose-or
+(defn compose-or?
   "(compose-or f g ...)
    => (fn [& xs] (boolean (or (apply f xs) (apply g xs) ...)))
 
@@ -19,13 +19,13 @@
   [& predicates]
   (fn [& xs] (boolean (some #(apply % xs) predicates))))
 
-(defn compose-not
+(defn compose-not?
   "(compose-not f g ...)
    => (fn [& xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))
 
   ((compose-not integer? string?) {}) will yield true."
   [& predicates]
-  (fn [& xs] (apply (apply compose-and (map complement predicates)) xs)))
+  (fn [& xs] (not-any? #(apply % xs) predicates)))
 
 (defn <-
   "Returns a lazy sequence of the items in coll that are boolean true."
