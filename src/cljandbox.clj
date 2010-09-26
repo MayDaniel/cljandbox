@@ -35,7 +35,7 @@
   [& clauses]
   (if-not (even? (count clauses))
     (throw (IllegalArgumentException. "do-when requires an even number of clauses."))
-    (cons 'do (map (partial 'when) (partition 2 clauses)))))
+    (cons 'do (map (partial cons 'when) (partition 2 clauses)))))
 
 (defn <-
   "Returns a lazy sequence of the items in coll that are boolean true."
