@@ -1,6 +1,7 @@
-(ns ^{:author "Daniel May (MayDaniel)", :doc "A collection of Clojure utilities."}
+(ns ^{:author "Daniel May (MayDaniel)"
+      :doc "A collection of Clojure utilities."}
   cljandbox
-  (:use [clojure.walk :only [postwalk-replace]]
+  (:use [clojure.walk        :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
 
 (defmacro ->_
@@ -28,31 +29,36 @@
          (when ~arglists (alter-meta! (var ~fn-name) assoc :arglists ~arglists))
          (var ~fn-name))))
 
+(defmacro do-when
+  "Executes the then form when test is truthy. For use with side-effects."
+  {:arglists '([test then & more])}
+  [& clauses]
+  (if-not (even? (count clauses))
+    (throw (IllegalArgumentException. "do-when requires an even number of clauses."))
+    (cons 'do (map (partial 'when) (partition 2 clauses)))))
+
 (defn <-
   "Returns a lazy sequence of the items in coll that are boolean true."
   [coll]
   (filter identity coll))
 
-(defn of-all?
-  "(of-all? f g ...)
-   => (fn [& xs] (and (apply f xs) (apply g xs) ... true))
+(defn all-of?
+  "((all-of? :a :b) {:a 1 :b 2}) ;; => true
 
-  ((of-all? coll? empty?) []) will yield true."
+   ((all-of? :a :b) {:a 3 :c 4}) ;; => false"
   [& predicates]
   (fn [& xs] (every? #(apply % xs) predicates)))
 
-(defn of-any?
-  "(of-any? f g ...)
-   => (fn [& xs] (boolean (or (apply f xs) (apply g xs) ...)))
+(defn any-of?
+  "((any-of? integer? string?) 5) ;; => true
 
-  ((of-any? number? string?) 2.5) will yield true."
+   ((any-of integer? string?) [1 2 3]) ;; => false"
   [& predicates]
   (fn [& xs] (boolean (some #(apply % xs) predicates))))
 
-(defn of-none?
-  "(of-none? f g ...)
-   => (fn [& xs] (and (apply (complement f) xs) (apply (complement g) xs) ...))
+(defn none-of?
+  "((none-of? map? vector?) '(1 2 3)) ;; => true
 
-  ((of-none? integer? string?) {}) will yield true."
+   ((none-of? map? vector?) [1 2 3]) ;; => false"
   [& predicates]
   (fn [& xs] (not-any? #(apply % xs) predicates)))
