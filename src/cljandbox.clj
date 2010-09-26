@@ -48,18 +48,18 @@
 
    ((all-of? :a :b) {:a 3 :c 4}) ;; => false"
   [& predicates]
-  (fn [& xs] (every? #(apply % xs) predicates)))
+  (fn [& xs] (every? #(every? % xs) predicates)))
 
 (defn any-of?
   "((any-of? integer? string?) 5) ;; => true
 
    ((any-of integer? string?) [1 2 3]) ;; => false"
   [& predicates]
-  (fn [& xs] (boolean (some #(apply % xs) predicates))))
+  (fn [& xs] (boolean (some #(every? % xs) predicates))))
 
 (defn none-of?
   "((none-of? map? vector?) '(1 2 3)) ;; => true
 
    ((none-of? map? vector?) [1 2 3]) ;; => false"
   [& predicates]
-  (fn [& xs] (not-any? #(apply % xs) predicates)))
+  (fn [& xs] (not-any? #(every? % xs) predicates)))
