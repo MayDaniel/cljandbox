@@ -14,12 +14,11 @@
 
 (defmacro defsource
   "Similar to clojure.core/defn, but saves the function's definition in the var's
-   ::source metadata."
+   :source metadata."
   {:arglists (:arglists (meta (var defn)))}
   [fn-name & defn-stuff]
   `(do (defn ~fn-name ~@defn-stuff)
-       (alter-meta! (var ~fn-name) assoc
-                    ::source (quote ~&form) :type ::source)
+       (alter-meta! (var ~fn-name) assoc :source (quote ~&form))
        (var ~fn-name)))
 
 (defmacro defunk
