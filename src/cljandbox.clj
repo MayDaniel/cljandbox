@@ -39,6 +39,15 @@
     (cons 'do (map (partial cons 'when)
                    (partition 2 clauses)))))
 
+(defmacro cond-pred
+  "(cond-pred 10
+     string? \"String!\"
+     vector? \"Vector!\"
+             \"Default!\")"
+  [x & clauses]
+  (letfn [(? [pred x] (pred x))]
+    `(condp ~? ~x ~@clauses)))
+
 (defn partialr
   "((partial / 5.0) 2)  ;; => 0.2
    ((partial / 5 5) 10) ;; => 0.4"
