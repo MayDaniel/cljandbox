@@ -1,6 +1,6 @@
 # [Cljandbox](http://maydaniel.github.com/cljandbox/)
 
-Pattern matching for Clojure.
+A collection of Clojure utilities.
 
 ## Installation
 
