@@ -14,11 +14,12 @@
 
 (defmacro defsource
   "Similar to clojure.core/defn, but saves the function's definition in the var's
-   :source metadata."
+   ::source metadata."
   {:arglists (:arglists (meta (var defn)))}
   [fn-name & defn-stuff]
   `(do (defn ~fn-name ~@defn-stuff)
-       (alter-meta! (var ~fn-name) assoc :source (quote ~&form))
+       (alter-meta! (var ~fn-name) assoc
+                    ::source (quote ~&form) :type ::source)
        (var ~fn-name)))
 
 (defmacro defunk
@@ -38,6 +39,12 @@
     (cons 'do (map (partial cons 'when)
                    (partition 2 clauses)))))
 
+(defn partialr
+  "((partial / 5.0) 2)  ;; => 0.2
+   ((partial / 5 5) 10) ;; => 0.4"
+  [f & r-args]
+  (fn [& l-args] (apply f (concat l-args r-args))))
+
 (defn <-
   "Returns a lazy sequence of the items in coll that are boolean true."
   [coll]
@@ -45,21 +52,18 @@
 
 (defn all-of?
   "((all-of? :a :b) {:a 1 :b 2}) ;; => true
-
    ((all-of? :a :b) {:a 3 :c 4}) ;; => false"
   [& predicates]
   (fn [& xs] (every? #(every? % xs) predicates)))
 
 (defn any-of?
-  "((any-of? integer? string?) 5) ;; => true
-
+  "((any-of? integer? string?) 5)      ;; => true
    ((any-of integer? string?) [1 2 3]) ;; => false"
   [& predicates]
   (fn [& xs] (boolean (some #(every? % xs) predicates))))
 
 (defn none-of?
   "((none-of? map? vector?) '(1 2 3)) ;; => true
-
-   ((none-of? map? vector?) [1 2 3]) ;; => false"
+   ((none-of? map? vector?) [1 2 3])  ;; => false"
   [& predicates]
   (fn [& xs] (not-any? #(every? % xs) predicates)))
