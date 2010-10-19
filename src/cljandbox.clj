@@ -1,5 +1,5 @@
 (ns ^{:author "Daniel May (MayDaniel)"
-      :doc "A collection of Clojure utilities."}
+      :doc    "A collection of Clojure utilities."}
   cljandbox
   (:use [clojure.walk        :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
@@ -42,7 +42,8 @@
   "(cond-pred 10
      string? \"String!\"
      vector? \"Vector!\"
-             \"Default!\")"
+             \"Default!\")
+  ;; => \"Default\""
   [x & clauses]
   (letfn [(? [pred x] (pred x))]
     `(condp ~? ~x ~@clauses)))
@@ -53,7 +54,7 @@
   [f & r-args]
   (fn [& l-args] (apply f (concat l-args r-args))))
 
-(defn <-
+(defn id<-
   "Returns a lazy sequence of the items in coll that are boolean true."
   [coll]
   (filter identity coll))
@@ -75,3 +76,9 @@
    ((none-of? map? vector?) [1 2 3])  ;; => false"
   [& predicates]
   (fn [& xs] (not-any? #(every? % xs) predicates)))
+
+(defn dup-in
+  "(take 7 (dup-in 2 (range 1000)))
+   ;; => (0 0 1 1 2 2 3)"
+  [n coll]
+  (mapcat (partial repeat n) coll))
