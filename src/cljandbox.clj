@@ -33,7 +33,7 @@
   "Executes the then form when test is truthy. For use with side-effects."
   {:arglists '([test then & more])}
   [& clauses]
-  (if-not (even? (count clauses))
+  (if (odd? (count clauses))
     (throw (IllegalArgumentException. "do-when requires an even number of clauses."))
     (cons 'do (map (partial cons 'when)
                    (partition 2 clauses)))))
@@ -62,23 +62,31 @@
 (defn all-of?
   "((all-of? :a :b) {:a 1 :b 2}) ;; => true
    ((all-of? :a :b) {:a 3 :c 4}) ;; => false"
-  [& predicates]
-  (fn [& xs] (every? #(every? % xs) predicates)))
+  [& preds]
+  (fn [x] (every? #(% x) preds)))
 
 (defn any-of?
   "((any-of? integer? string?) 5)      ;; => true
    ((any-of integer? string?) [1 2 3]) ;; => false"
-  [& predicates]
-  (fn [& xs] (boolean (some #(every? % xs) predicates))))
+  [& preds]
+  (fn [x] (boolean (some #(% x) preds))))
 
 (defn none-of?
   "((none-of? map? vector?) '(1 2 3)) ;; => true
    ((none-of? map? vector?) [1 2 3])  ;; => false"
-  [& predicates]
-  (fn [& xs] (not-any? #(every? % xs) predicates)))
+  [& preds]
+  (fn [x] (not-any? #(% x) preds)))
 
 (defn dup-in
   "(take 7 (dup-in 2 (range 1000)))
    ;; => (0 0 1 1 2 2 3)"
   [n coll]
   (mapcat (partial repeat n) coll))
+
+(defn tails
+  "A lazy sequence of the tails of the collection. coll inclusive.
+   (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
+  [coll]
+  (->> (seq coll)
+       (iterate next)
+       (take-while seq)))
