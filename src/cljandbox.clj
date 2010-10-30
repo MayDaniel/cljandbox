@@ -84,7 +84,7 @@
   (mapcat (partial repeat n) coll))
 
 (defn tails
-  "A lazy sequence of the tails of the collection. (seq) inclusive.
+  "A lazy sequence of the tails of the collection. (seq coll) inclusive.
    (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
   [coll]
   (->> (seq coll)
