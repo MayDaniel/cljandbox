@@ -1,4 +1,4 @@
-(defproject cljandbox "0.1.4"
+(defproject cljandbox "0.1.5"
   :description "A collection of Clojure utilities."
   :url "http://maydaniel.github.com/cljandbox/"
   :dependencies [[clojure "1.2.0"] [clojure-contrib "1.2.0"]]

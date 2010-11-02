@@ -90,3 +90,10 @@
   (->> (seq coll)
        (iterate next)
        (take-while seq)))
+
+(defn heads
+  "A lazy sequence of the heads of the collection.
+   (heads [1 2 3]) ;; => ((1) (1 2) (1 2 3))"
+  [coll]
+  (map take (iterate inc 1)
+            (repeat (count coll) coll)))
