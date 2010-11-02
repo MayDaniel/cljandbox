@@ -83,6 +83,13 @@
   [n coll]
   (mapcat (partial repeat n) coll))
 
+(defn starts-with?
+  "Returns true if a starts with b, otherwise false.
+   (starts-with? [1 2 3] [1 2 3 4]) ;; => true
+   (starts-with? \"foo\" \"fo\"     ;; => true"
+  [a b]
+  (every? true? (map = a b)))
+
 (defn tails
   "A lazy sequence of the tails of the collection. (seq coll) inclusive.
    (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
