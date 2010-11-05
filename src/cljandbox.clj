@@ -86,21 +86,18 @@
 (defn starts-with?
   "Returns true if a starts with b, otherwise false.
    (starts-with? [1 2 3] [1 2 3 4]) ;; => true
-   (starts-with? \"foo\" \"fo\"     ;; => true"
+   (starts-with? \"foo\" \"fo\")    ;; => true"
   [a b]
   (every? true? (map = a b)))
 
-(defn tails
-  "A lazy sequence of the tails of the collection. (seq coll) inclusive.
-   (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
-  [coll]
-  (->> (seq coll)
-       (iterate next)
-       (take-while seq)))
-
 (defn heads
-  "A lazy sequence of the heads of the collection.
-   (heads [1 2 3]) ;; => ((1) (1 2) (1 2 3))"
+  "(heads [1 2 3]) ;; => ([1] [1 2] [1 2 3])"
   [coll]
-  (map take (iterate inc 1)
-            (repeat (count coll) coll)))
+  (reductions conj [(first coll)] (next coll)))
+
+(defn tails
+  "(tails [1 2 3]) ;; => ([1 2 3] [1 2] [1])"
+  [coll]
+  (->> (vec coll)
+       (iterate pop)
+       (take-while not-empty)))
