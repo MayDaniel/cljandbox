@@ -90,14 +90,17 @@
   [a b]
   (every? true? (map = a b)))
 
-(defn heads
-  "(heads [1 2 3]) ;; => ([1] [1 2] [1 2 3])"
-  [coll]
-  (reductions conj [(first coll)] (next coll)))
-
 (defn tails
-  "(tails [1 2 3]) ;; => ([1 2 3] [1 2] [1])"
+  "A lazy sequence of the tails of the collection. (seq coll) inclusive.
+   (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
   [coll]
-  (->> (vec coll)
-       (iterate pop)
-       (take-while not-empty)))
+  (->> (seq coll)
+       (iterate next)
+       (take-while seq)))
+
+(defn heads
+  "A lazy sequence of the heads of the collection.
+   (heads [1 2 3]) ;; => ((1) (1 2) (1 2 3))"
+  [coll]
+  (map take (iterate inc 1)
+            (repeat (count coll) coll)))
