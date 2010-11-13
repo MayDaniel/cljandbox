@@ -116,3 +116,10 @@
    running and associating (f ele) only if it hasn't."
   [f coll]
   (reduce #(if (%1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
+
+(defn mapmultimap
+  "Similar to mapmap, but allows multiple collections, throwing f's
+   arguments into a vector.
+   (mapmultimap + [1 2 3] [4 5 6]) ;; => {[1 4] 5, [2 5] 7, [3 6] 9}"
+  [f & colls]
+  (into {} (apply map (juxt vector f) colls)))
