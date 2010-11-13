@@ -104,3 +104,15 @@
   [coll]
   (map take (iterate inc 1)
             (repeat (count coll) coll)))
+
+(defn mapmap
+  "(mapmap (partial * 10) [1 2 3 4]) ;; => {1 10, 2 20, 3 30, 4 40}"
+  [f coll]
+  (persistent!
+   (reduce #(assoc! %1 %2 (f %2)) (transient {}) coll)))
+
+(defn mapcachemap
+  "Similar to mapmap, but checks if (f ele) has already been executed,
+   running and associating (f ele) only if it hasn't."
+  [f coll]
+  (reduce #(if (%1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
