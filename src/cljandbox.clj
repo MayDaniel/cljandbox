@@ -105,6 +105,12 @@
   (map take (iterate inc 1)
             (repeat (count coll) coll)))
 
+(defn partition-when [pred coll]
+  (lazy-seq
+   (when-let [s (seq coll)]
+     (let [[head tail] (split-with pred s)]
+       (cons head (partition-when (complement pred) tail))))))
+
 (defn mapmap
   "(mapmap (partial * 10) [1 2 3 4]) ;; => {1 10, 2 20, 3 30, 4 40}"
   [f coll]
