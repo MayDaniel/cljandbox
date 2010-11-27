@@ -105,7 +105,10 @@
   (map take (iterate inc 1)
             (repeat (count coll) coll)))
 
-(defn partition-when [pred coll]
+(defn partition-when
+  "(partition-when boolean [1 2 true nil false 3 4])
+   ;; => ((1 2 true) (nil false) (3 4))"
+  [pred coll]
   (lazy-seq
    (when-let [s (seq coll)]
      (let [[head tail] (split-with pred s)]
