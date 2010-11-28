@@ -105,14 +105,17 @@
   (map take (iterate inc 1)
             (repeat (count coll) coll)))
 
-(defn partition-when
-  "(partition-when boolean [1 2 true nil false 3 4])
-   ;; => ((1 2 true) (nil false) (3 4))"
+(defn take-until
+  "(take-until #{3} (range 6))
+   ;; => (0 1 2)"
   [pred coll]
-  (lazy-seq
-   (when-let [s (seq coll)]
-     (let [[head tail] (split-with pred s)]
-       (cons head (partition-when (complement pred) tail))))))
+  (take-while (complement pred) coll))
+
+(defn drop-until
+  "(drop-until #{3} (range 6))
+   ;; => (3 4 5)"
+  [pred coll]
+  (drop-while (complement pred) coll))
 
 (defn mapmap
   "(mapmap (partial * 10) [1 2 3 4]) ;; => {1 10, 2 20, 3 30, 4 40}"
