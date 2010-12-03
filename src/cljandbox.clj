@@ -127,7 +127,7 @@
   "Similar to mapmap, but checks if (f ele) has already been executed,
    running and associating (f ele) only if it hasn't."
   [f coll]
-  (reduce #(if (%1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
+  (reduce #(if (find %1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
 
 (defn mapmultimap
   "Similar to mapmap, but allows multiple collections, throwing f's
