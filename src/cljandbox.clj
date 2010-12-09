@@ -56,7 +56,7 @@
     `(condp ~? ~x ~@clauses)))
 
 (defn partialr
-  "((partialr / 5.0) 2)  ;; => 0.2
+  "((partialr / 10) 2)  ;; => 0.2
    ((partialr / 5 5) 10) ;; => 0.4"
   [f & r-args]
   (fn [& l-args] (apply f (concat l-args r-args))))
