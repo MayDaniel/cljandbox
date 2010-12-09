@@ -37,6 +37,12 @@
   (cons 'do (map (partial cons 'when)
                  (partition 2 clauses))))
 
+(defmacro cond-pred [x & clauses]
+  (assert (even? (count clauses)))
+  (when (not-empty clauses)
+    (let [[pred then & more] clauses]
+      `(if (~pred ~x) ~then (cond-pred ~x ~@more)))))
+
 (defmacro check-let [bindings & body]
   (assert (vector? bindings))
   (assert (even? (count bindings)))
@@ -44,16 +50,6 @@
     (let [[binding [else & more]] (split-at 2 bindings)]
       `(if-let [~@binding] (check-let [~@more] ~@body) ~else))
     `(do ~@body)))
-
-(defmacro cond-pred
-  "(cond-pred 10
-     string? \"String!\"
-     vector? \"Vector!\"
-             \"Default!\")
-  ;; => \"Default\""
-  [x & clauses]
-  (letfn [(? [pred x] (pred x))]
-    `(condp ~? ~x ~@clauses)))
 
 (defn partialr
   "((partialr / 10) 2)  ;; => 0.2
