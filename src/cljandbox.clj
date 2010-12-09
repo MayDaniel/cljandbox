@@ -33,10 +33,9 @@
   "Executes the then form when test is truthy. For use with side-effects."
   {:arglists '([test then & more])}
   [& clauses]
-  (if (odd? (count clauses))
-    (throw (IllegalArgumentException. "do-when requires an even number of clauses."))
-    (cons 'do (map (partial cons 'when)
-                   (partition 2 clauses)))))
+  (assert (even? (count clauses)))
+  (cons 'do (map (partial cons 'when)
+                 (partition 2 clauses))))
 
 (defmacro check-let [bindings & body]
   (assert (vector? bindings))
