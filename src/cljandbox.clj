@@ -38,6 +38,14 @@
     (cons 'do (map (partial cons 'when)
                    (partition 2 clauses)))))
 
+(defmacro check-let [bindings & body]
+  (assert (vector? bindings))
+  (assert (even? (count bindings)))
+  (if (not-empty bindings)
+    (let [[binding [else & more]] (split-at 2 bindings)]
+      `(if-let [~@binding] (check-let [~@more] ~@body) ~else))
+    `(do ~@body)))
+
 (defmacro cond-pred
   "(cond-pred 10
      string? \"String!\"
@@ -127,7 +135,7 @@
   "Similar to mapmap, but checks if (f ele) has already been executed,
    running and associating (f ele) only if it hasn't."
   [f coll]
-  (reduce #(if (find %1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
+  (reduce #(if (contains? %1 %2) %1 (assoc %1 %2 (f %2))) {} coll))
 
 (defn mapmultimap
   "Similar to mapmap, but allows multiple collections, throwing f's
