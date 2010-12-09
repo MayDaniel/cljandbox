@@ -1,5 +1,6 @@
-(defproject cljandbox "0.1.9"
+(defproject cljandbox "0.2.0"
   :description "A collection of Clojure utilities."
   :url "http://maydaniel.github.com/cljandbox/"
   :dependencies [[clojure "1.2.0"] [clojure-contrib "1.2.0"]]
-  :dev-dependencies [[lein-clojars "0.5.0"] [org.clojars.rayne/autodoc "0.8.0-SNAPSHOT"]])
+  :dev-dependencies [[cake-autodoc "0.0.1-SNAPSHOT"]]
+  :tasks [cake-autodoc.tasks])
