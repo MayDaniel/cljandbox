@@ -5,4 +5,3 @@ A collection of Clojure utilities.
 ## Installation
 
 Add `[cljandbox "0.1.9"]` to your dependencies.
- 
