@@ -4,4 +4,4 @@ A collection of Clojure utilities.
 
 ## Installation
 
-Add `[cljandbox "0.2.0"]` to your dependencies.
+Add `[cljandbox "0.2.1"]` to your dependencies.

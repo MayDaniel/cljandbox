@@ -120,10 +120,9 @@
 
 (defn heads
   "A lazy sequence of the heads of the collection.
-   (heads [1 2 3]) ;; => ((1) (1 2) (1 2 3))"
+   (heads [1 2 3]) ;; => ([1] [1 2] [1 2 3])"
   [coll]
-  (map take (iterate inc 1)
-            (repeat (count coll) coll)))
+  (rest (reductions conj [] coll)))
 
 (defn take-until
   "(take-until #{3} (range 6))
