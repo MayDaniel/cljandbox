@@ -54,13 +54,21 @@
   (cons 'do (map (partial cons 'when)
                  (partition 2 clauses))))
 
-(defmacro cond-pred [x & clauses]
+(defmacro cond-pred
+  (cond-pred user-map
+    (comp not :valid?) "Invalid user."
+    (comp not :in)     "User is logged out.")
+  [x & clauses]
   (assert (even? (count clauses)))
   (when (not-empty clauses)
     (let [[pred then & more] clauses]
       `(if (~pred ~x) ~then (cond-pred ~x ~@more)))))
 
-(defmacro check-let [bindings & body]
+(defmacro check-let
+  "(check-let [username (re-find #"$[a-z]+^" name) "Invalid username."
+               password (re-find #"$[a-z]+^" pass) "Invalid password."]
+     (register-user username password))"
+  [bindings & body]
   (assert (vector? bindings))
   (assert (even? (count bindings)))
   (if (not-empty bindings)
