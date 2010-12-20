@@ -29,6 +29,23 @@
          (when ~arglists (alter-meta! (var ~fn-name) assoc :arglists ~arglists))
          (var ~fn-name))))
 
+(defmacro defpartial
+  "Defines a function that accepts a fixed number of arguments, and
+   automagically partially applies its arguments if too few are passed.
+   (defpartial foo [{:keys [a b]} c] (+ a b c))
+   (foo {:a 1 :b 2} 3)   ;; => 6
+   ((foo {:a 1 :b 2}) 3) ;; => 6"
+  [name args & body]
+  `(defn ~name {:arglists (quote ([~@args]))} [~'& ~'args]
+    (let [count#  ~(count args)
+          actual#  (count ~'args)]
+      (cond (> actual# count#) ;; too many arguments
+            (throw (IllegalArgumentException.))
+            (< actual# count#) ;; too few arguments
+            (apply partial ~name ~'args)
+            (= count# actual#) ;; correct number of arguments
+            (let [[~@args] ~'args] ~@body)))))
+
 (defmacro do-when
   "Executes the then form when test is truthy. For use with side-effects."
   {:arglists '([test then & more])}
