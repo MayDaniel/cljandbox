@@ -65,8 +65,8 @@
       `(if (~pred ~x) ~then (cond-pred ~x ~@more)))))
 
 (defmacro check-let
-  "(check-let [username (re-find #"$[a-z]+^" name) \"Invalid username.\"
-               password (re-find #"$[a-z]+^" pass) \"Invalid password.\"]
+  "(check-let [username (re-find #\"$[a-z]+^\" name) \"Invalid username.\"
+               password (re-find #\"$[a-z]+^\" pass) \"Invalid password.\"]
      (register-user username password))"
   [bindings & body]
   (assert (vector? bindings))
