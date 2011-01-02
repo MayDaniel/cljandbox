@@ -4,6 +4,12 @@
   (:use [clojure.walk        :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
 
+(defn first-pred
+  "Returns the identity of the first value that matches pred
+   within a collection, else nil."
+  [pred coll]
+  (first (filter pred coll)))
+
 (defmacro ->_
   "Threads the forms, replacing underscores with the result of the last expression."
   ([x] x)
@@ -24,9 +30,9 @@
 (defmacro defunk
   "Similar to clojure.contrib.def/defnk, but accepts :arglists metadata."
   [fn-name & fn-tail]
-  (let [arglists (some :arglists fn-tail)]
+  (let [arglists (first-pred #(or (:arglists %) (vector? %)) fn-tail)] 
     `(do (defnk ~fn-name ~@fn-tail)
-         (when ~arglists (alter-meta! (var ~fn-name) assoc :arglists ~arglists))
+         (alter-meta! (var ~fn-name) assoc :arglists ~arglists)
          (var ~fn-name))))
 
 (defmacro defpartial
@@ -76,6 +82,14 @@
       `(if-let [~@binding] (check-let [~@more] ~@body) ~else))
     `(do ~@body)))
 
+(defmacro for-when
+  "Isomorphic with \"for\", but skips body-expr for the current
+   iteration when the (non-destructured) symbols refer to values
+   that are logically false."
+  [seq-exprs body-expr]
+  (let [symbols (filter symbol? (take-nth 2 seq-exprs))]
+    `(for [~@seq-exprs :when (and ~@symbols)] ~body-expr)))
+
 (defn partialr
   "((partialr / 10) 2)  ;; => 0.2
    ((partialr / 5 5) 10) ;; => 0.4"
@@ -124,7 +138,7 @@
   [coll]
   (->> (seq coll)
        (iterate next)
-       (take-while seq)))
+       (take-while not-empty)))
 
 (defn heads
   "A lazy sequence of the heads of the collection.
