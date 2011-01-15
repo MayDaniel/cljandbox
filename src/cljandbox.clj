@@ -144,11 +144,9 @@
                           (cons (g x) (map-if pred f g more))))))))
 
 (defn starts-with?
-  "Returns true if a starts with b, otherwise false.
-   (starts-with? [1 2 3] [1 2 3 4]) ;; => true
-   (starts-with? \"foo\" \"fo\")    ;; => true"
+  "Returns true if a starts with b, otherwise false."
   [a b]
-  (every? true? (map = a b)))
+  (= b (take (count b) a)))
 
 (defn tails
   "A lazy sequence of the tails of the collection. (seq coll) inclusive.
