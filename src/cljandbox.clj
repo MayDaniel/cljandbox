@@ -125,6 +125,24 @@
   [n coll]
   (mapcat (partial repeat n) coll))
 
+(defn map-nth
+  ([skip f coll] (map-nth skip skip f coll))
+  ([skip pad f coll]
+     (lazy-seq
+      (when-let [s (seq coll)]
+        (if (zero? pad)
+          (cons (f (first s)) (map-nth skip skip f (rest s)))
+          (cons (first s) (map-nth skip (dec pad) f (rest s))))))))
+
+(defn map-if
+  ([pred f coll] (map-if pred f identity coll))
+  ([pred f g coll] (lazy-seq
+                    (when-let [s (seq coll)]
+                      (let [[x & more] s]
+                        (if (pred x)
+                          (cons (f x) (map-if pred f g more))
+                          (cons (g x) (map-if pred f g more))))))))
+
 (defn starts-with?
   "Returns true if a starts with b, otherwise false.
    (starts-with? [1 2 3] [1 2 3 4]) ;; => true
@@ -176,3 +194,13 @@
    (mapmultimap + [1 2 3] [4 5 6]) ;; => {[1 4] 5, [2 5] 7, [3 6] 9}"
   [f & colls]
   (into {} (apply map (juxt vector f) colls)))
+
+(defn update-or
+  "(update-or {:a {} :c {:d 3}} [:a :b] inc 0)
+   ;; => {:a {:b 1}, :c {:d 3}}
+   (update-or {:a {} :c {:d 3}} [:c :d] inc 0)
+   ;; => {:a {}, :c {:d 4}}"
+  ([m ks f default]
+    (update-in m ks (fnil f default)))
+  ([m ks f default & args]
+     (apply update-in m ks (fnil f default) args)))
