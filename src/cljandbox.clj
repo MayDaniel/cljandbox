@@ -4,11 +4,17 @@
   (:use [clojure.walk        :only [postwalk-replace]]
         [clojure.contrib.def :only [defnk]]))
 
+(defn verify [pred x]
+  (when (pred x) x))
+
+(defn validator [pred]
+  (partial verify pred))
+
 (defn first-pred
   "Returns the identity of the first value that matches pred
    within a collection, else nil."
   [pred coll]
-  (first (filter pred coll)))
+  (some (validator pred) coll))
 
 (defmacro ->_
   "Threads the forms, replacing underscores with the result of the last expression."
@@ -17,6 +23,10 @@
               (with-meta (postwalk-replace {'_ x} form) (meta form))
               (list form x)))
   ([x form & more] `(->_ (->_ ~x ~form) ~@more)))
+
+(defmacro ->with [symbol & exprs]
+  `(let [~@(interleave (repeat symbol) (drop-last exprs))]
+     ~(last exprs)))
 
 (defmacro defsource
   "Similar to clojure.core/defn, but saves the function's definition in the var's
@@ -30,7 +40,7 @@
 (defmacro defunk
   "Similar to clojure.contrib.def/defnk, but accepts :arglists metadata."
   [fn-name & fn-tail]
-  (let [arglists (first-pred #(or (:arglists %) (vector? %)) fn-tail)] 
+  (let [arglists (first-pred #(or (:arglists %) (vector? %)) fn-tail)]
     `(do (defnk ~fn-name ~@fn-tail)
          (alter-meta! (var ~fn-name) assoc :arglists ~arglists)
          (var ~fn-name))))
@@ -62,8 +72,8 @@
 
 (defmacro cond-pred
   "(cond-pred user-map
-    (comp not :valid?) \"Invalid user.\"
-    (comp not :in)     \"User is logged out.\")"
+    (complement :valid?) \"Invalid user.\"
+    (complement :in)     \"User is logged out.\")"
   [x & clauses]
   (assert (even? (count clauses)))
   (when (not-empty clauses)
@@ -76,18 +86,14 @@
      (register-user username password))"
   [bindings & body]
   (assert (vector? bindings))
-  (assert (even? (count bindings)))
+  (assert (zero? (mod (count bindings) 3)))
   (if (not-empty bindings)
     (let [[binding [else & more]] (split-at 2 bindings)]
       `(if-let [~@binding] (check-let [~@more] ~@body) ~else))
     `(do ~@body)))
 
-(defmacro for-when
-  "Isomorphic with \"for\", but skips body-expr for the current
-   iteration when the (non-destructured) symbols refer to values
-   that are logically false."
-  [seq-exprs body-expr]
-  (let [symbols (filter symbol? (take-nth 2 seq-exprs))]
+(defmacro for-when [seq-exprs body-expr]
+  (let [symbols (filter symbol? (tree-seq coll? seq seq-exprs))]
     `(for [~@seq-exprs :when (and ~@symbols)] ~body-expr)))
 
 (defn partialr
@@ -119,6 +125,9 @@
   [& preds]
   (fn [x] (not-any? #(% x) preds)))
 
+(defn intercalate [xs xss]
+  (apply concat (interpose xs xss)))
+
 (defn dup-in
   "(take 7 (dup-in 2 (range 1000)))
    ;; => (0 0 1 1 2 2 3)"
@@ -133,6 +142,9 @@
         (if (zero? pad)
           (cons (f (first s)) (map-nth skip skip f (rest s)))
           (cons (first s) (map-nth skip (dec pad) f (rest s))))))))
+
+(defn map-nth [n f coll]
+  (map #(%1 %2) (cycle (cons f (repeat (dec n) identity))) coll))
 
 (defn map-if
   ([pred f coll] (map-if pred f identity coll))
@@ -150,17 +162,20 @@
 
 (defn tails
   "A lazy sequence of the tails of the collection. (seq coll) inclusive.
-   (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3))"
+   (tails [1 2 3]) ;; => ((1 2 3) (2 3) (3) ())"
   [coll]
   (->> (seq coll)
-       (iterate next)
-       (take-while not-empty)))
+       (iterate rest)
+       (take (-> coll count inc))))
 
-(defn heads
+(defn inits
   "A lazy sequence of the heads of the collection.
-   (heads [1 2 3]) ;; => ([1] [1 2] [1 2 3])"
+   (inits [1 2 3]) ;; => ([] [1] [1 2] [1 2 3])"
   [coll]
-  (rest (reductions conj [] coll)))
+  (reductions conj [] coll))
+
+(defn group [coll]
+  (partition-by identity coll))
 
 (defn take-until
   "(take-until #{3} (range 6))
@@ -173,6 +188,9 @@
    ;; => (3 4 5)"
   [pred coll]
   (drop-while (complement pred) coll))
+
+(defn kmap [f coll]
+  (into (empty coll) (map f coll)))
 
 (defn mapmap
   "(mapmap (partial * 10) [1 2 3 4]) ;; => {1 10, 2 20, 3 30, 4 40}"
@@ -198,7 +216,5 @@
    ;; => {:a {:b 1}, :c {:d 3}}
    (update-or {:a {} :c {:d 3}} [:c :d] inc 0)
    ;; => {:a {}, :c {:d 4}}"
-  ([m ks f default]
-    (update-in m ks (fnil f default)))
   ([m ks f default & args]
      (apply update-in m ks (fnil f default) args)))
